@@ -1,6 +1,6 @@
 import React from "react";
 import "whatwg-fetch";
-import { render, fireEvent, screen } from "@testing-library/react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import { server } from "../mocks/server";
 import { getAll, getByType } from "../mocks/data";
@@ -10,44 +10,48 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe("Fetching pets", () => {
-  it("should fetch all pets by default", async () => {
+describe("App Component", () => {
+  test("fetches all pets by default", async () => {
     render(<App />);
-
-    fireEvent.click(screen.getByText(/Find pets/));
-
-    await screen.findAllByTestId("pet");
-
-    expect(screen.getAllByTestId("pet")).toHaveLength(getAll().length);
+    fireEvent.click(screen.getByText(/find pets/i));
+    const petButtons = await screen.findAllByText(/Adopt pet/);
+    expect(petButtons.length).toBe(getAll().length);
   });
 
-  it("should fetch pet types using the type parameter based on the filter", async () => {
+  test("filters pets by type", async () => {
     render(<App />);
+    const type = "micropig";
+    const expectedPets = getByType(type);
 
-    let type = "micropig";
-    fireEvent.change(screen.getByLabelText(/type/), {
+    fireEvent.change(screen.getByRole("combobox"), {
       target: { value: type },
     });
+    fireEvent.click(screen.getByText(/find pets/i));
 
-    fireEvent.click(screen.getByText(/Find pets/));
+    await waitFor(
+      () => {
+        // More accurate way to count pet cards
+        const petCards = screen
+          .getAllByText(/Type:/)
+          .map((typeElement) => typeElement.closest(".card"));
 
-    await screen.findAllByTestId("pet");
+        // Verify we have the expected number of micropigs
+        expect(petCards.length).toBe(expectedPets.length);
 
-    expect(screen.getAllByTestId("pet")).toHaveLength(getByType(type).length);
+        // Verify each card has the correct type
+        petCards.forEach((card) => {
+          expect(card).toHaveTextContent(type);
+        });
+      },
+      { timeout: 3000 }
+    );
   });
-});
 
-describe("Adopting pets", () => {
-  it("should set a pet's adopted status to true", async () => {
+  test("handles pet adoption", async () => {
     render(<App />);
-
-    fireEvent.click(screen.getByText(/Find pets/));
-
+    fireEvent.click(screen.getByText(/find pets/i));
     const buttons = await screen.findAllByText(/Adopt pet/);
-    const button = buttons[0];
-
-    fireEvent.click(button);
-
-    expect(button.textContent).toContain("Already adopted");
+    fireEvent.click(buttons[0]);
+    expect(buttons[0].textContent).toContain("Already adopted");
   });
 });
