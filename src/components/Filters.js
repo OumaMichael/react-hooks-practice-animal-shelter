@@ -1,20 +1,28 @@
 import React from "react";
 
-function Filters() {
+function Filters({ onChangeType, onFindPetsClick }) {
   return (
-    <div className="ui form">
-      <h3>Animal type</h3>
-      <div className="field">
-        <select name="type" id="type" aria-label="type">
-          <option value="all">All</option>
-          <option value="cat">Cats</option>
-          <option value="dog">Dogs</option>
-          <option value="micropig">Micropigs</option>
-        </select>
-      </div>
-
-      <div className="field">
-        <button className="ui secondary button">Find pets</button>
+    <div className="card mb-4">
+      <div className="card-body">
+        <h5 className="card-title">Filter Pets</h5>
+        <div className="row g-3 align-items-center">
+          <div className="col-md-4">
+            <select
+              className="form-select"
+              onChange={(e) => onChangeType(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="cat">Cats</option>
+              <option value="dog">Dogs</option>
+              <option value="micropig">Micropigs</option>
+            </select>
+          </div>
+          <div className="col-auto">
+            <button className="btn btn-primary" onClick={onFindPetsClick}>
+              Find Pets
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
