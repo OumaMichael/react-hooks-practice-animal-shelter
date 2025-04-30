@@ -1,24 +1,33 @@
 import React from "react";
 
-function Pet() {
+function Pet({ pet, onAdoptPet }) {
+  const genderSymbol = pet.gender === "male" ? "♂" : "♀";
+
   return (
-    <div className="card" data-testid="pet">
-      <div className="content">
-        <span className="header">
-          {/*'♀' OR '♂' */}
-          PET NAME
-        </span>
-        <div className="meta">
-          <span className="date">PET TYPE</span>
-        </div>
-        <div className="description">
-          <p>Age: PET AGE</p>
-          <p>Weight: PET WEIGHT</p>
-        </div>
+    <div className="card h-100 shadow-sm">
+      <div className="card-body">
+        <h5 className="card-title">
+          {pet.name} <span>{genderSymbol}</span>
+        </h5>
+        <p className="card-text">
+          <strong>Type:</strong> {pet.type} <br />
+          <strong>Age:</strong> {pet.age} <br />
+          <strong>Weight:</strong> {pet.weight} kg
+        </p>
       </div>
-      <div className="extra content">
-        <button className="ui disabled button">Already adopted</button>
-        <button className="ui primary button">Adopt pet</button>
+      <div className="card-footer bg-transparent">
+        {pet.isAdopted ? (
+          <button className="btn btn-secondary w-100" disabled>
+            Already adopted
+          </button>
+        ) : (
+          <button
+            className="btn btn-success w-100"
+            onClick={() => onAdoptPet(pet.id)}
+          >
+            Adopt pet
+          </button>
+        )}
       </div>
     </div>
   );
